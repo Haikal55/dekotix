@@ -62,7 +62,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© 2026 TixPro Inc. All rights reserved.</p>
+          <p>© 2026 DekoTix Inc. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <span className="text-xs">Secure payments powered by</span>
             <div className="flex gap-2">
