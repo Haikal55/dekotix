@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Mail, Lock, ArrowRight, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,13 +22,30 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const router = useRouter();
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate registration delay
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      
+      if (res.ok) {
+        await signIn("credentials", { email, password, callbackUrl: "/dashboard" });
+      } else {
+        const data = await res.json();
+        alert(data.message || "Registration failed");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

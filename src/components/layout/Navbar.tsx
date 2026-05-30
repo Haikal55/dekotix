@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Ticket } from "lucide-react";
+import { Menu, X, Ticket, UserCircle } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -16,6 +17,7 @@ const navLinks = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,11 +57,20 @@ export default function Navbar() {
             ))}
           </ul>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="hidden lg:inline-flex">
-              <Button variant="ghost" className="text-sm font-medium">
-                Sign In
-              </Button>
-            </Link>
+            {session ? (
+              <Link href="/dashboard" className="hidden lg:inline-flex">
+                <Button variant="ghost" className="text-sm font-medium gap-2">
+                  <UserCircle className="w-5 h-5" />
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/login" className="hidden lg:inline-flex">
+                <Button variant="ghost" className="text-sm font-medium">
+                  Sign In
+                </Button>
+              </Link>
+            )}
             <Link href="/buy-tickets">
               <Button>Buy Tickets</Button>
             </Link>
@@ -96,9 +107,18 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="pt-4 flex flex-col gap-2 border-t border-border">
-                <Link href="/login" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">Sign In</Button>
-                </Link>
+                {session ? (
+                  <Link href="/dashboard" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full gap-2">
+                      <UserCircle className="w-5 h-5" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href="/login" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">Sign In</Button>
+                  </Link>
+                )}
                 <Link href="/buy-tickets" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
                   <Button className="w-full">Buy Tickets</Button>
                 </Link>

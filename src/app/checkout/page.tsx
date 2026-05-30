@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CreditCard, Wallet, Building2, ShieldCheck, ArrowRight, Ticket as TicketIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,14 +17,49 @@ import {
 import Link from "next/link";
 
 export default function CheckoutPage() {
+  const router = useRouter();
+  const { status } = useSession();
+  
   const [paymentMethod, setPaymentMethod] = useState("credit-card");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [orderSummary, setOrderSummary] = useState<any[]>([]);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    passport: ""
+  });
 
-  // Mocked order summary data for visualization
-  const orderSummary = [
-    { id: "vip", name: "VIP", quantity: 1, price: 2750000 },
-    { id: "cat1", name: "CAT 1", quantity: 2, price: 2000000 },
-  ];
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+    
+    if (status === "authenticated") {
+      fetch("/api/user/profile")
+        .then(res => res.json())
+        .then(data => {
+          if (data && !data.message) {
+            const names = data.name ? data.name.split(" ") : ["", ""];
+            setFormData(prev => ({
+              ...prev,
+              firstName: names[0] || "",
+              lastName: names.slice(1).join(" ") || "",
+              email: data.email || "",
+              phone: data.phone || "",
+              passport: data.passport || ""
+            }));
+          }
+        })
+        .catch(console.error);
+    }
+
+    const saved = localStorage.getItem("dekotix_cart");
+    if (saved) {
+      setOrderSummary(JSON.parse(saved));
+    }
+  }, [status, router]);
 
   const subtotal = orderSummary.reduce((total, item) => total + (item.price * item.quantity), 0);
   const tax = subtotal * 0.11; // 11% Tax
@@ -37,15 +74,37 @@ export default function CheckoutPage() {
     }).format(price);
   };
 
-  const handleCheckout = (e: React.FormEvent) => {
+  const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    // Simulate payment processing delay
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/tickets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tickets: orderSummary }),
+      });
+
+      if (res.ok) {
+        localStorage.removeItem("dekotix_cart");
+        window.location.href = "/dashboard";
+      } else {
+        alert("Please log in to purchase a ticket.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to process payment");
+    } finally {
       setIsProcessing(false);
-      window.location.href = "/ticket";
-    }, 2000);
+    }
   };
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="min-h-screen pt-24 pb-32 bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-32 bg-background relative overflow-hidden">
@@ -77,6 +136,8 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         required
+                        value={formData.firstName}
+                        onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                         className="flex h-11 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         placeholder="John"
                       />
@@ -86,6 +147,8 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         required
+                        value={formData.lastName}
+                        onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                         className="flex h-11 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         placeholder="Doe"
                       />
@@ -96,6 +159,8 @@ export default function CheckoutPage() {
                     <input
                       type="email"
                       required
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
                       className="flex h-11 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       placeholder="john.doe@example.com"
                     />
@@ -105,6 +170,8 @@ export default function CheckoutPage() {
                     <input
                       type="tel"
                       required
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       className="flex h-11 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       placeholder="+62 812 3456 7890"
                     />
@@ -114,6 +181,8 @@ export default function CheckoutPage() {
                     <input
                       type="text"
                       required
+                      value={formData.passport}
+                      onChange={(e) => setFormData({...formData, passport: e.target.value})}
                       className="flex h-11 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       placeholder="Must match physical ID for entry"
                     />

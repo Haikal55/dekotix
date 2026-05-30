@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Ticket, Minus, Plus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SeatingMap } from "@/components/ui/SeatingMap";
 import { ticketsData, eventData } from "@/data/event";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -17,6 +19,9 @@ import {
 import Link from "next/link";
 
 export default function BuyTicketsPage() {
+  const router = useRouter();
+  const { status } = useSession();
+  
   // Store quantities for each ticket ID
   const [quantities, setQuantities] = useState<Record<string, number>>(
     ticketsData.reduce((acc, ticket) => ({ ...acc, [ticket.id]: 0 }), {})
@@ -40,6 +45,12 @@ export default function BuyTicketsPage() {
     return total + parsePrice(ticket.price) * quantities[ticket.id];
   }, 0);
 
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
   const totalTickets = Object.values(quantities).reduce((a, b) => a + b, 0);
 
   const formatPrice = (price: number) => {
@@ -49,6 +60,23 @@ export default function BuyTicketsPage() {
       minimumFractionDigits: 0,
     }).format(price);
   };
+
+  const proceedToCheckout = () => {
+    const selected = ticketsData
+      .filter(t => quantities[t.id] > 0)
+      .map(t => ({ id: t.id, name: t.name, quantity: quantities[t.id], price: parsePrice(t.price) }));
+    
+    localStorage.setItem("dekotix_cart", JSON.stringify(selected));
+    router.push("/checkout");
+  };
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="min-h-screen pt-24 pb-32 bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-32 bg-background relative overflow-hidden">
@@ -154,12 +182,10 @@ export default function BuyTicketsPage() {
             </span>
           </div>
           
-          <Link href="/checkout">
-            <Button size="lg" className="h-14 px-8 text-lg font-semibold shadow-lg shadow-primary/20 transition-all hover:scale-105">
+            <Button onClick={proceedToCheckout} size="lg" className="h-14 px-8 text-lg font-semibold shadow-lg shadow-primary/20 transition-all hover:scale-105">
               <ShoppingCart className="w-5 h-5 mr-2" />
-              Checkout Now
+              Add to Cart & Checkout
             </Button>
-          </Link>
         </div>
       </motion.div>
     </div>

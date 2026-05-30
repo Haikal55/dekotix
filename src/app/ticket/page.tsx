@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { toPng } from "html-to-image";
 import { Download, Ticket as TicketIcon, QrCode } from "lucide-react";
@@ -9,19 +10,45 @@ import { eventData, scheduleData } from "@/data/event";
 import Link from "next/link";
 
 export default function TicketPage() {
-  const ticketRef = useRef<HTMLDivElement>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
+  return (
+    <Suspense fallback={<div className="min-h-screen pt-24 pb-32 bg-background flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" /></div>}>
+      <TicketContent />
+    </Suspense>
+  );
+}
 
-  // Mocked data for the generated ticket
-  const ticketInfo = {
-    userName: "JOHN DOE",
-    category: "VIP",
-    seatNumber: "34",
-    gate: "GATE 3",
-    bookingCode: "123456789",
-    gateOpen: scheduleData.find(s => s.title.includes("Gate"))?.time || "15:00",
-    showTime: "8 PM", // hardcoded to match the visual reference for demo
-  };
+function TicketContent() {
+  const ticketRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [ticketInfo, setTicketInfo] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (id) {
+      fetch(`/api/tickets/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && !data.message) {
+            setTicketInfo({
+              event: data.event,
+              date: data.date,
+              location: data.location,
+              userName: data.user.name,
+              category: data.category,
+              seatNumber: data.seat,
+              bookingCode: data.bookingCode,
+            });
+          }
+          setIsLoading(false);
+        })
+        .catch(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
+    }
+  }, [id]);
 
   const handleDownload = async () => {
     if (!ticketRef.current) return;
@@ -43,6 +70,23 @@ export default function TicketPage() {
       setIsDownloading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pt-24 pb-32 bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!ticketInfo) {
+    return (
+      <div className="min-h-screen pt-24 pb-32 bg-background flex flex-col items-center justify-center gap-4">
+        <h2 className="text-2xl font-bold">Ticket Not Found</h2>
+        <Link href="/dashboard"><Button>Back to Dashboard</Button></Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-32 bg-background flex flex-col items-center justify-center relative overflow-hidden">
@@ -88,15 +132,15 @@ export default function TicketPage() {
             {/* Top Area */}
             <div className="flex flex-col gap-4 mt-2">
               <h2 className="text-4xl md:text-5xl font-black uppercase tracking-wide text-white drop-shadow-md">
-                MUSIC FESTIVAL
+                {ticketInfo.event}
               </h2>
               
               <div className="flex flex-col gap-1 mt-2">
                 <span className="text-xl md:text-2xl font-bold tracking-widest">
-                  21 DECEMBER | 8 PM
+                  {ticketInfo.date}
                 </span>
                 <span className="text-sm md:text-base font-semibold text-cyan-400 uppercase tracking-wider">
-                  47 W 13TH ST, NEW YORK, NY 10011, USA
+                  {ticketInfo.location}
                 </span>
               </div>
             </div>
@@ -113,7 +157,7 @@ export default function TicketPage() {
               <div className="flex flex-col gap-1.5">
                 <span className="text-[10px] md:text-xs font-bold text-fuchsia-400 uppercase tracking-widest pl-2">Zone</span>
                 <div className="bg-[#1a0b38]/60 backdrop-blur-sm border border-white/5 rounded-xl px-5 py-2.5 min-w-[100px]">
-                  <span className="font-bold text-sm md:text-base uppercase">GOLD</span>
+                  <span className="font-bold text-sm md:text-base uppercase">{ticketInfo.category}</span>
                 </div>
               </div>
 
