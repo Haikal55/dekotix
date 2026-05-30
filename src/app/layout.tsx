@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "YOASOBI Live in Jakarta - TixPro",
+  title: "YOASOBI Live in Jakarta - DekoTix",
   description: "Get your tickets for YOASOBI The Live Experience 2026 in Jakarta.",
 };
 
