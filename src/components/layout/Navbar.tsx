@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
-  { name: "Home", href: "#home" },
-  { name: "Event Info", href: "#overview" },
-  { name: "Tickets", href: "#tickets" },
-  { name: "FAQ", href: "#faq" },
+  { name: "Home", href: "/" },
+  { name: "Event Info", href: "/#overview" },
+  { name: "Tickets", href: "/#tickets" },
+  { name: "FAQ", href: "/#faq" },
 ];
 
 export default function Navbar() {
@@ -25,6 +25,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -34,7 +35,7 @@ export default function Navbar() {
       }`}
     >
       <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-        <Link href="#home" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-2 group">
           <Ticket className="w-8 h-8 text-primary transition-transform group-hover:scale-110" />
           <span className="font-bold text-xl tracking-tight">DEKO<span className="text-primary">TIX</span></span>
         </Link>
@@ -54,10 +55,14 @@ export default function Navbar() {
             ))}
           </ul>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="text-sm font-medium hidden lg:inline-flex">
-              Sign In
-            </Button>
-            <Button>Buy Tickets</Button>
+            <Link href="/login" className="hidden lg:inline-flex">
+              <Button variant="ghost" className="text-sm font-medium">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/buy-tickets">
+              <Button>Buy Tickets</Button>
+            </Link>
           </div>
         </nav>
 
@@ -91,8 +96,12 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="pt-4 flex flex-col gap-2 border-t border-border">
-                <Button variant="outline" className="w-full">Sign In</Button>
-                <Button className="w-full">Buy Tickets</Button>
+                <Link href="/login" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button variant="outline" className="w-full">Sign In</Button>
+                </Link>
+                <Link href="/buy-tickets" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button className="w-full">Buy Tickets</Button>
+                </Link>
               </div>
             </div>
           </motion.div>

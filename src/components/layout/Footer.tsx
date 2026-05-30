@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           <div className="md:col-span-1">
-            <Link href="#home" className="flex items-center gap-2 mb-4 group">
+            <Link href="/" className="flex items-center gap-2 mb-4 group">
               <Ticket className="w-8 h-8 text-primary" />
               <span className="font-bold text-xl tracking-tight">DEKO<span className="text-primary">TIX</span></span>
             </Link>
@@ -33,17 +33,17 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4 text-foreground">Explore</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="#home" className="hover:text-primary transition-colors">Home</Link></li>
-              <li><Link href="#overview" className="hover:text-primary transition-colors">Event Info</Link></li>
-              <li><Link href="#tickets" className="hover:text-primary transition-colors">Tickets</Link></li>
-              <li><Link href="#venue" className="hover:text-primary transition-colors">Venue</Link></li>
+              <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
+              <li><Link href="/#overview" className="hover:text-primary transition-colors">Event Info</Link></li>
+              <li><Link href="/buy-tickets" className="hover:text-primary transition-colors">Tickets</Link></li>
+              <li><Link href="/#venue" className="hover:text-primary transition-colors">Venue</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-semibold mb-4 text-foreground">Support</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="#faq" className="hover:text-primary transition-colors">Help Center / FAQ</Link></li>
+              <li><Link href="/#faq" className="hover:text-primary transition-colors">Help Center / FAQ</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors">Contact Us</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors">Ticket Transfer</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors">Accessibility</Link></li>

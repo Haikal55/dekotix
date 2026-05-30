@@ -127,13 +127,13 @@ export const onSaleData = [
     title: "General On-Sale Day 1",
     subtitle: "(26 February 2025)",
     description: "Starts on Saturday, 15 August 2026 at 03PM\n(GMT +7 / Jakarta Local Time)",
-    link: "#"
+    link: "/buy-tickets"
   },
   {
     id: "day2",
     title: "General On-Sale Day 2",
     subtitle: "(27 February 2025)",
     description: "Starts on Saturday, 15 August 2026 at 03PM\n(GMT +7 / Jakarta Local Time)",
-    link: "#"
+    link: "/buy-tickets"
   }
 ];

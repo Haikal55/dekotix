@@ -47,7 +47,7 @@ export default function HeroSection() {
 
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="#tickets" className="w-full sm:w-auto">
+              <Link href="/buy-tickets" className="w-full sm:w-auto">
                 <Button size="lg" className="w-full text-lg h-14 px-8 shadow-lg shadow-primary/20 transition-all hover:scale-105">
                   Get Tickets Now
                 </Button>
