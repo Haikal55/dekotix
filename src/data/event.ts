@@ -12,6 +12,11 @@ export const eventData = {
   artist: {
     name: "YOASOBI",
     image: "https://www.billboard.com/wp-content/uploads/2024/12/YOASOBI-Photo-Mayuka-bb-japan-2024-billboard-1548.jpg", // placeholder concert image
+    images: [
+      "https://www.billboard.com/wp-content/uploads/2024/12/YOASOBI-Photo-Mayuka-bb-japan-2024-billboard-1548.jpg",
+      "https://i0.wp.com/unis-son.com/wp-content/uploads/2025/06/pic20241101YOASOBI6.jpg",
+      "https://www.nautiljon.com/images/galerie/15/38/yoasobi_j-pop_1200883.webp"
+    ],
     bio: "YOASOBI is a Japanese music superduo composed of Vocaloid producer Ayase and singer-songwriter ikura. Known for turning novels into music, they have become a global sensation."
   },
   images: {

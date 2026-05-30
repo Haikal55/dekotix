@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { User, Ticket, Settings, LogOut, Calendar, MapPin, ExternalLink, Edit2 } from "lucide-react";
+import { User, Ticket, Settings, LogOut, Calendar, MapPin, ExternalLink, Edit2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { eventData } from "@/data/event";
 import {
@@ -24,7 +24,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   
   // Profile State
-  const [profile, setProfile] = useState({ name: "", email: "", phone: "", passport: "" });
+  const [profile, setProfile] = useState({ firstName: "", lastName: "", email: "", phone: "", passport: "" });
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
@@ -49,8 +49,10 @@ export default function DashboardPage() {
         
         if (profileRes.ok) {
           const profileData = await profileRes.json();
+          const names = profileData.name ? profileData.name.split(" ") : ["", ""];
           setProfile({
-            name: profileData.name || "",
+            firstName: names[0] || "",
+            lastName: names.slice(1).join(" ") || "",
             email: profileData.email || "",
             phone: profileData.phone || "",
             passport: profileData.passport || ""
@@ -71,7 +73,7 @@ export default function DashboardPage() {
       const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: profile.name, phone: profile.phone, passport: profile.passport })
+        body: JSON.stringify({ name: `${profile.firstName} ${profile.lastName}`.trim(), phone: profile.phone, passport: profile.passport })
       });
       if (res.ok) {
         setIsEditingProfile(false);
@@ -108,7 +110,7 @@ export default function DashboardPage() {
                 <User className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h2 className="font-bold text-lg">{profile.name || "Loading..."}</h2>
+                <h2 className="font-bold text-lg">{profile.firstName ? `${profile.firstName} ${profile.lastName}` : "Loading..."}</h2>
                 <p className="text-sm text-muted-foreground">{profile.email || "Loading..."}</p>
               </div>
             </div>
@@ -129,6 +131,14 @@ export default function DashboardPage() {
                 Account Settings
               </button>
               <div className="border-t border-border/50 my-2" />
+              {((session?.user as any)?.role === "ADMIN" || session?.user?.email === "admin@dekotix.com") && (
+                <Link href="/admin">
+                  <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-primary/10 text-primary">
+                    <ShieldCheck className="w-5 h-5" />
+                    Admin Panel
+                  </button>
+                </Link>
+              )}
               <button 
                 onClick={() => signOut({ callbackUrl: '/' })}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-destructive/10 text-destructive"
@@ -244,15 +254,27 @@ export default function DashboardPage() {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Full Name</span>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">First Name</span>
                         {isEditingProfile ? (
                           <input 
-                            value={profile.name} 
-                            onChange={(e) => setProfile({...profile, name: e.target.value})}
+                            value={profile.firstName} 
+                            onChange={(e) => setProfile({...profile, firstName: e.target.value})}
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                           />
                         ) : (
-                          <p className="font-medium text-lg">{profile.name || "-"}</p>
+                          <p className="font-medium text-lg">{profile.firstName || "-"}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Last Name</span>
+                        {isEditingProfile ? (
+                          <input 
+                            value={profile.lastName} 
+                            onChange={(e) => setProfile({...profile, lastName: e.target.value})}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                          />
+                        ) : (
+                          <p className="font-medium text-lg">{profile.lastName || "-"}</p>
                         )}
                       </div>
                       <div className="space-y-2">

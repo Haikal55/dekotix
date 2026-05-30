@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -16,7 +21,70 @@ model User {
   passport  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  role      Role     @default(USER)
   tickets   Ticket[]
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  title         String
+  date          DateTime
+  location      String
+  address       String
+  capacity      Int
+  duration      String
+  description   String
+  artistName    String
+  artistBio     String
+  artistImages  String[] // Array of image URLs
+  heroImage     String
+  venueImage    String
+  
+  categories    TicketCategory[]
+  schedules     Schedule[]
+  faqs          FAQ[]
+  sponsors      Sponsor[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model TicketCategory {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id])
+  name        String
+  subtitle    String
+  price       Int
+  color       String
+  benefits    String[] // Array of strings
+  capacity    Int      @default(1000)
+  sold        Int      @default(0)
+}
+
+model Schedule {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id])
+  time        String
+  title       String
+  description String
+}
+
+model FAQ {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id])
+  question    String
+  answer      String
+}
+
+model Sponsor {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id])
+  name        String
+  logo        String
 }
 
 model Ticket {
